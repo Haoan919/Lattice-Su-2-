@@ -114,29 +114,29 @@ This extension made the code suitable for studying how gauge observables behave 
 
 ---
 
-### V6 — Honeycomb Lattice Implementation
+### V6 — Honeycomb Lattice Implementation with Parallelogram Periodicity
 
-The sixth stage introduced the most substantial geometric modification in the project: a **honeycomb lattice implementation** in the spatial \(x\)-\(y\) plane using **brick-wall mapping**.
+The sixth stage introduced the largest geometric extension in the project: a full **honeycomb-lattice implementation** in the spatial \(x\)-\(y\) plane. Rather than treating the system as a simple square-derived lattice with modified measurements, this stage redefined both the spatial geometry and the local update structure of the simulation.
 
-This stage involved several distinct changes.
+The honeycomb lattice was implemented through a **brick-wall embedding**, which allowed the non-rectangular connectivity of the honeycomb graph to be encoded inside an array-based lattice representation. In this construction, the three link directions were defined so that
+- \(U(t,x,y,0)\) connects the temporal direction,
+- \(U(t,x,y,1)\) connects \((t,x,y)\) to \((t,x+1,y)\),
+- \(U(t,x,y,2)\) connects \((t,x,y)\) to \((t,x-1,y+1)\),
 
-First, the spatial geometry itself was restructured. Instead of using the earlier square-derived spatial organization, the \(x\)-\(y\) plane was encoded through a brick-wall representation of the honeycomb lattice, allowing the simulation to preserve honeycomb connectivity within an array-based implementation.
+so that the effective plaquette structure in the embedded lattice reproduces a hexagonal plaquette through a skewed parallelogram representation rather than an ordinary rectangular one. The honeycomb plaquette itself was therefore represented by an ordered product of links adapted to this embedding, not by the standard square-lattice plaquette formula. :contentReference[oaicite:1]{index=1}
 
-Second, the measurement routines were specialized by plane. Separate Wilson-action functions were introduced for different directions, including:
+A key point of this stage is that the final implementation was **not based on a rectangular periodic construction**. Instead, the final method used a **parallelogram-based algorithm** to impose periodicity on the honeycomb lattice. This was essential because the natural periodic identification of a honeycomb tiling is not captured correctly by a rectangular fundamental domain. A rectangular identification distorts the true adjacency relations of the honeycomb lattice, breaks the intended matching of boundary links, and leads to incorrect closed-loop structure when Wilson loops or local plaquette environments cross the boundary. In contrast, the parallelogram construction preserves the translational structure of the embedded honeycomb tiling and gives the correct periodic continuation of links and plaquettes. In other words, the final results in this version were extracted using a **parallelogram fundamental-domain algorithm**, precisely because the ordinary rectangular construction was shown to be geometrically incorrect for periodic honeycomb simulations. :contentReference[oaicite:2]{index=2}
 
+This geometric change also required a full rewrite of the **Wilson-loop measurement routines** in the spatial plane. Separate functions were introduced for different planes, including:
 - `WilsonAction12` for the \(x\)-\(y\) plane,
 - `WilsonAction01` for the \(t\)-\(x\) plane,
 - `WilsonAction02` for the \(t\)-\(y\) plane.
 
-This was necessary because closed-loop constructions in the honeycomb geometry are no longer described by the same rectangular stepping rules used in earlier square-like versions.
+These were necessary because loop construction on the honeycomb lattice is no longer described by the rectangular stepping rules used in earlier square-like versions. In the \(x\)-\(y\) plane in particular, the Wilson loop had to be redefined as a path that follows the skewed link structure of the embedded honeycomb lattice. This means that the measurement layer was rebuilt so that gauge-invariant loops remain meaningful in the new geometry rather than simply reusing square-lattice formulas. :contentReference[oaicite:3]{index=3}
 
-Third, and most importantly, the **staple calculus itself was rewritten**. In earlier versions, the local staple surrounding a link followed square-lattice or strip-derived adjacency rules. In the honeycomb version, this is no longer sufficient, since the local neighborhood of a link depends on the new connectivity structure and, in practice, on the sublattice organization introduced by the brick-wall mapping.
+Just as importantly, the **staple calculus itself was rewritten**. In the earlier reduced strip and square-derived versions, the local staple surrounding a link could still be built from standard nearest-neighbor plaquette logic. That is no longer valid in the honeycomb setting, because the local neighborhood of a link depends on the honeycomb connectivity and on the sublattice structure introduced by the brick-wall embedding. As a result, the update kernel had to be made geometry-aware: different link directions require different staple constructions, and for some link types the surrounding local contribution is no longer a simple square-lattice three-link complement but a longer multi-link product adapted to the effective hexagonal plaquette structure. This ensured that Heat Bath, Metropolis, and Overrelaxation updates were driven by the correct local action in the new geometry rather than by a square-lattice approximation. :contentReference[oaicite:4]{index=4}
 
-As a result, the local update environment used by Heat Bath, Metropolis, and Overrelaxation was no longer inherited from the earlier geometry. Instead, the staple construction was adapted to the honeycomb lattice itself, so that local Monte Carlo updates were consistent with the new plaquette structure and local connectivity.
-
-This final stage transformed the project from a reduced-lattice SU(2) simulation code into a more general **geometry-adaptive lattice gauge framework**.
-
----
+Conceptually, this stage is important for two reasons. First, it extended the project from a reduced SU(2) lattice code into a genuinely **geometry-adaptive non-Abelian gauge simulation framework**. Second, it established and justified the use of a **parallelogram periodic algorithm** as the correct way to simulate periodic honeycomb lattices. In that sense, V6 was not just an implementation step; it also included a geometric result: the demonstration that the naive rectangular construction is wrong, while the parallelogram-based fundamental domain correctly preserves the periodic structure needed for honeycomb-lattice Monte Carlo evolution and Wilson-loop measurements. :contentReference[oaicite:5]{index=5}
 
 ## Physics Scope
 
