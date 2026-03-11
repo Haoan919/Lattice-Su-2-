@@ -104,13 +104,15 @@ by comparing the string tension extracted from loops of different sizes.
 
 ---
 
-### V5 — Open Boundary Conditions
+## V5 — Open Boundary Conditions and the `Ny = 2, Ly = 1` Construction
 
-In the fifth stage, the lattice was modified to include **open boundary conditions in the \(y\)-direction**.
+In the fifth stage, I introduced **open boundary conditions in the y-direction** and constructed a reduced transverse geometry with **Ny = 2** but **effective y-length = 1**.
 
-This version fixed \(N_y = 2\) while removing periodic boundary identification along that axis, turning the geometry into a reduced strip-like system with an explicitly distinguished boundary direction.
+The main difficulty was that although the y-direction could be restricted in size, a **true length-1 periodic identification could not be implemented directly** in the original lattice setup. A naive treatment would fail to realize the desired periodic structure at that minimal scale.
 
-This extension made the code suitable for studying how gauge observables behave when one spatial direction is no longer wrapped periodically, which is especially relevant for reduced-width lattice constructions.
+To resolve this, I introduced a mathematical construction at the level of the **initial field configuration**: the newly extended part of the lattice was assigned the **same field values as the original part**. This effectively enforced the required identification from the start, allowing the simulation to reproduce the intended length-1 behavior without relying on a naive periodic rule.
+
+As a result, this version retained **two y-indexed layers** in the data structure, but the actual geometric extent in the y-direction was reduced to its minimal nontrivial form. This made the system a controlled intermediate case between the earlier reduced Euclidean lattices and the later honeycomb-lattice implementation, while also demonstrating a practical method for realizing otherwise inaccessible minimal periodic structure.
 
 ---
 
